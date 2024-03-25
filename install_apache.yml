@@ -6,21 +6,16 @@
   become: true
   tasks:
 
-
-  - name: update respository index
-    apt:
-      update_cache: yes
-    when: ansible_distribution == "Ubuntu"
-
-  - name: Install the Apache2 and the libapache2-mod-php package
-  # 2 more spaces before the APT module
-    apt:
+  - name: Install the Apache and the libapache2-mod-php package
+    package:
     # 2 more spaces before the elements.
     # Created a list of plays 
       name: 
-        - apache2
-        - libapache2-mod-php
+        # NOW I HAVE ADDED LOCALLY SIGNIFICATN VARIABLES 
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
+      update_cache: yes
       state: latest
-    when: ansible_distribution == "Ubuntu"
+  
 
 
