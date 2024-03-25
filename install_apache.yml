@@ -12,19 +12,15 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
-  - name: Install the Apache2 package
+  - name: Install the Apache2 and the libapache2-mod-php package
   # 2 more spaces before the APT module
     apt:
     # 2 more spaces before the elements.
-      name: apache2
+    # Created a list of plays 
+      name: 
+        - apache2
+        - libapache2-mod-php
       state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: add php support for apache2
-    apt:
-      name: libapache2-mod-php
-      state: latest
-    #Run only on ubuntu ansible distribution.  Run Cat /etc/os-release
     when: ansible_distribution == "Ubuntu"
 
 
