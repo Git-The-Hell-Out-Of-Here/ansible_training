@@ -1,0 +1,56 @@
+# --- to identify this as a YAML file
+---
+
+- hosts: all
+# 2 spaces next
+  become: true
+  tasks:
+
+  - name: Install updates (CentOS)
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  
+  - name: Install updates (Ubuntu)
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+
+# This next section will target WEB_SERVERS only
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: install apache and php for Ubuntu web_servers
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install apache and php for CentOS web_servers
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+  # - name: Install the Apache and the libapache2-mod-php package
+  #   package:
+  #   # 2 more spaces before the elements.
+  #   # Created a list of plays 
+  #     name: 
+  #       # NOW I HAVE ADDED LOCALLY SIGNIFICATN VARIABLES 
+  #       - "{{ apache_package }}"
+  #       - "{{ php_package }}"
+  #     update_cache: yes
+  #     state: latest
+  
+
+
