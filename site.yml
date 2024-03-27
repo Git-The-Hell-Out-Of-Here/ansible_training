@@ -4,7 +4,8 @@
 - hosts: all
 # 2 spaces next
   become: true
-  tasks:
+  pre_tasks:
+  
 
   - name: Install updates (CentOS)
     dnf:
@@ -51,6 +52,37 @@
   #       - "{{ php_package }}"
   #     update_cache: yes
   #     state: latest
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: Install MariaDB (Ubuntu)
+    apt:
+      name:
+        - mariadb-server
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install MariaDB (CENTOS)
+    dnf:
+      name: mariadb
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+- hosts: file_servers
+  become: true
+  tasks:
+
+  - name: Install file server
+#the package command is used instead of APT / DNF as they are both the same package name "samba"
+    package:
+      name: samba
+      state: latest
+
+  
+
+
   
 
 
