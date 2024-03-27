@@ -5,6 +5,8 @@
 # 2 spaces next
   become: true
   pre_tasks:
+
+ 
   
 
   - name: Install updates (CentOS)
@@ -23,6 +25,54 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
+
+ #Module 13 - Adding Users and Bootstrapping
+
+- hosts: all
+  become: true
+  tasks:
+  - name: Create user Simone
+    tags: always
+    user:
+      name: simone
+      groups: root 
+
+# Add SSH key for Simone
+
+  - name: Add SSH key for Simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO81GDFDTuF8jgLqGUUBhjV7sa3im/1RnRlvdPuOLp+Q ansible"
+  
+# Add Simone as sudoers  
+  - name: Add sudoers file for Simone
+    tags: always
+    copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      
+
+
+# Task 11 Adding more plays to install unzip and terraform.
+- hosts: workstations
+  become: true
+  tasks:
+  - name: install unzip
+    package: 
+      name: unzip
+      state: latest
+
+  - name: install terraform.
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes #Tells it that the src is a remote network.
+      mode: 0755
+      owner: root
+      group: root
 
 # This next section will target WEB_SERVERS only
 - hosts: web_servers
@@ -47,6 +97,32 @@
       state: latest
     when: ansible_distribution == "CentOS"
 
+# Module 12 - Start httpd web service
+
+  - name: Start the HTTPD web service (CentOS)
+    tags: apache,centos,https
+    service:
+      name: httpd
+      state: started
+    when: ansible_distribution == "CentOS"
+    
+# Module 13 - Managing services
+  - name: Change email address for admin
+    tags: apache,centos,httpd
+    lineinfile: 
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "CentOS"
+    register: httpd # this will register the status of the service as a VARIABLES
+
+
+  - name: Restart HTTPd (CentOS)
+    tags: apache,apache2,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
 
    # A new play to change the default homepage
   - name: copy default html file for site

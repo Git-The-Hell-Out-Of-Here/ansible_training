@@ -9,9 +9,14 @@
 [file_servers]
 192.168.231.131 
 
+[workstations]
+192.168.231.129
+
 
 [all:vars]
-ansible_connection=ssh
+
 ansible_user=daz
 ansible_ssh_pass=daz
+ansible_connection=ssh
+
 
