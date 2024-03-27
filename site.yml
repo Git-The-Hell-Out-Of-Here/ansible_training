@@ -47,6 +47,18 @@
       state: latest
     when: ansible_distribution == "CentOS"
 
+
+   # A new play to change the default homepage
+  - name: copy default html file for site
+    tags: apache,apache2,httpd
+    copy:
+    # it assumes that the file is located in the FILES folder.
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
   # - name: Install the Apache and the libapache2-mod-php package
   #   package:
   #   # 2 more spaces before the elements.
