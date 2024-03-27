@@ -8,13 +8,16 @@
   
 
   - name: Install updates (CentOS)
+    tags: always
     dnf:
+    
       update_only: yes
       update_cache: yes
     when: ansible_distribution == "CentOS"
 
   
   - name: Install updates (Ubuntu)
+    tags: always
     apt:
       upgrade: dist
       update_cache: yes
@@ -27,6 +30,7 @@
   tasks:
 
   - name: install apache and php for Ubuntu web_servers
+    tags: apache, apache2, ubuntu
     apt:
       name:
         - apache2
@@ -35,6 +39,7 @@
     when: ansible_distribution == "Ubuntu"
 
   - name: install apache and php for CentOS web_servers
+    tags: apache, apache2, centos
     dnf:
       name:
         - httpd
@@ -53,11 +58,13 @@
   #     update_cache: yes
   #     state: latest
 
+
 - hosts: db_servers
   become: true
   tasks:
 
   - name: Install MariaDB (Ubuntu)
+
     apt:
       name:
         - mariadb-server
@@ -75,6 +82,7 @@
   tasks:
 
   - name: Install file server
+    tags: samba
 #the package command is used instead of APT / DNF as they are both the same package name "samba"
     package:
       name: samba
