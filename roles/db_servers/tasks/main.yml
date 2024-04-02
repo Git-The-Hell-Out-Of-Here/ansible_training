@@ -1,0 +1,12 @@
+- name: Install MariaDB (Ubuntu)
+  apt:
+    name:
+      - mariadb-server
+    state: latest
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install MariaDB (CENTOS)
+  dnf:
+    name: mariadb
+    state: latest
+  when: ansible_distribution == "CentOS"

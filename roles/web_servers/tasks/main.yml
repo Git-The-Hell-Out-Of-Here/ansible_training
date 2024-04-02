@@ -1,0 +1,55 @@
+  - name: install apache and php for Ubuntu web_servers
+    tags: apache, apache2, ubuntu
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install apache and php for CentOS web_servers
+    tags: apache, apache2, centos
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+# Module 12 - Start httpd web service
+
+  - name: Start the HTTPD web service (CentOS)
+    tags: apache,centos,https
+    service:
+      name: httpd
+      state: started
+    when: ansible_distribution == "CentOS"
+    
+# Module 13 - Managing services
+  - name: Change email address for admin
+    tags: apache,centos,httpd
+    lineinfile: 
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "CentOS"
+    register: httpd # this will register the status of the service as a VARIABLES
+
+
+  - name: Restart HTTPd (CentOS)
+    tags: apache,apache2,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
+   # A new play to change the default homepage
+  - name: copy default html file for site
+    tags: apache,apache2,httpd
+    copy:
+    # it assumes that the file is located in the FILES folder.
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644

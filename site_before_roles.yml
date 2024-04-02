@@ -1,0 +1,184 @@
+# --- to identify this as a YAML file
+---
+
+- hosts: all
+# 2 spaces next
+  become: true
+  pre_tasks:
+
+ 
+  
+
+  - name: Install updates (CentOS)
+    tags: always
+    dnf:
+    
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  
+  - name: Install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+
+ #Module 13 - Adding Users and Bootstrapping
+
+- hosts: all
+  become: true
+  tasks:
+  - name: Create user Simone
+    tags: always
+    user:
+      name: simone
+      groups: root 
+
+# Add SSH key for Simone
+
+  - name: Add SSH key for Simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO81GDFDTuF8jgLqGUUBhjV7sa3im/1RnRlvdPuOLp+Q ansible"
+  
+# Add Simone as sudoers  
+  - name: Add sudoers file for Simone
+    tags: always
+    copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      
+
+
+# Task 11 Adding more plays to install unzip and terraform.
+- hosts: workstations
+  become: true
+  tasks:
+  - name: install unzip
+    package: 
+      name: unzip
+      state: latest
+
+  - name: install terraform.
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes #Tells it that the src is a remote network.
+      mode: 0755
+      owner: root
+      group: root
+
+# This next section will target WEB_SERVERS only
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: install apache and php for Ubuntu web_servers
+    tags: apache, apache2, ubuntu
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install apache and php for CentOS web_servers
+    tags: apache, apache2, centos
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+# Module 12 - Start httpd web service
+
+  - name: Start the HTTPD web service (CentOS)
+    tags: apache,centos,https
+    service:
+      name: httpd
+      state: started
+    when: ansible_distribution == "CentOS"
+    
+# Module 13 - Managing services
+  - name: Change email address for admin
+    tags: apache,centos,httpd
+    lineinfile: 
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "CentOS"
+    register: httpd # this will register the status of the service as a VARIABLES
+
+
+  - name: Restart HTTPd (CentOS)
+    tags: apache,apache2,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
+   # A new play to change the default homepage
+  - name: copy default html file for site
+    tags: apache,apache2,httpd
+    copy:
+    # it assumes that the file is located in the FILES folder.
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+  # - name: Install the Apache and the libapache2-mod-php package
+  #   package:
+  #   # 2 more spaces before the elements.
+  #   # Created a list of plays 
+  #     name: 
+  #       # NOW I HAVE ADDED LOCALLY SIGNIFICATN VARIABLES 
+  #       - "{{ apache_package }}"
+  #       - "{{ php_package }}"
+  #     update_cache: yes
+  #     state: latest
+
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: Install MariaDB (Ubuntu)
+
+    apt:
+      name:
+        - mariadb-server
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install MariaDB (CENTOS)
+    dnf:
+      name: mariadb
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+- hosts: file_servers
+  become: true
+  tasks:
+
+  - name: Install file server
+    tags: samba
+#the package command is used instead of APT / DNF as they are both the same package name "samba"
+    package:
+      name: samba
+      state: latest
+
+  
+
+
+  
+
+

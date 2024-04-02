@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather in Dorset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #weather {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="weather">
+        <h1>Weather in Dorset</h1>
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        // Function to fetch weather information
+        function getWeather() {
+            // Simulated weather data
+            const weatherData = {
+                temperature: '16°C',
+                description: 'Partly Cloudy',
+                humidity: '55%',
+                windSpeed: '10 km/h'
+            };
+
+            // Update the weather display
+            document.getElementById('weather').innerHTML = `
+                <h1>Weather in Dorset</h1>
+                <p>Temperature: ${weatherData.temperature}</p>
+                <p>Description: ${weatherData.description}</p>
+                <p>Humidity: ${weatherData.humidity}</p>
+                <p>Wind Speed: ${weatherData.windSpeed}</p>
+            `;
+        }
+
+        // Call the function to get weather information
+        getWeather();
+    </script>
+</body>
+</html>

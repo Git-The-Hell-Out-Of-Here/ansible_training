@@ -1,0 +1,6 @@
+- name: Install file server
+  tags: samba
+#the package command is used instead of APT / DNF as they are both the same package name "samba"
+  package:
+    name: samba
+    state: latest
